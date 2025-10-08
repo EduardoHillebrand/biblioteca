@@ -2,10 +2,13 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import { BOOKS } from "@/lib/mock";
 
-type Props = { params: { id: string } };
-
-export default function ReaderPage({ params }: Props) {
-  const book = BOOKS.find(b => b.id === params.id);
+export default async function ReaderPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;           // <— await aqui
+  const book = BOOKS.find((b) => b.id === id);
 
   if (!book) {
     return (
