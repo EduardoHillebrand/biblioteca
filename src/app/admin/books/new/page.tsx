@@ -44,7 +44,7 @@ export default function AdminNewBookPage() {
       return
     }
     if (!coverCropped) {
-      alert("Selecione e recorte a capa para 800x600")
+      alert("Selecione e recorte a capa para 600x800")
       return
     }
 
@@ -61,7 +61,7 @@ export default function AdminNewBookPage() {
     const fd = new FormData()
     fd.append("meta", new Blob([JSON.stringify(payload)], { type: "application/json" }))
     fd.append("pdf", pdf, pdf.name)
-    fd.append("cover", coverCropped, "cover-800x600.jpg")
+    fd.append("cover", coverCropped, "cover-600x800.jpg")
 
     // Exemplo de chamada. Troque a URL quando a API estiver pronta
     // Aqui apenas mostramos no console para testar o front
@@ -126,15 +126,15 @@ export default function AdminNewBookPage() {
             </div>
 
             <div>
-              <label className="text-sm">Capa 800x600</label>
+              <label className="text-sm">Capa</label>
               <input type="file" accept="image/*" onChange={e => onSelectCover(e.target.files?.[0])} className="mt-1 block w-full" />
               {coverPreview && (
                 <div className="mt-2 flex items-center gap-3">
-                  <img src={coverPreview} alt="preview" className="w-40 h-30 object-cover rounded border" />
+                  <img src={coverPreview} alt="preview" className="w-30 h-40 object-cover rounded border" />
                   <button type="button" onClick={() => setShowCropper(true)} className="px-3 py-2 border rounded-xl">Recortar novamente</button>
                 </div>
               )}
-              <p className="text-xs text-gray-600 mt-1">O recorte é forçado para 800x600 com aspecto 4:3</p>
+              <p className="text-xs text-gray-600 mt-1">600x800</p>
             </div>
           </div>
 

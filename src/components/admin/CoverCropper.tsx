@@ -17,9 +17,9 @@ async function getCroppedBlob(imageSrc: string, crop: { x: number; y: number; wi
   const canvas = document.createElement("canvas")
   const ctx = canvas.getContext("2d")!
 
-  // queremos 800x600
-  const outW = 800
-  const outH = 600
+  // queremos 600x800
+  const outW = 600
+  const outH = 800
   canvas.width = outW
   canvas.height = outH
 
@@ -68,7 +68,7 @@ export default function CoverCropper({
             image={url}
             crop={crop}
             zoom={zoom}
-            aspect={4/3} // 800x600
+            aspect={3/4} // 600x800
             onCropChange={setCrop}
             onZoomChange={setZoom}
             onCropComplete={onCropComplete}
@@ -82,7 +82,7 @@ export default function CoverCropper({
           </div>
           <div className="flex gap-2">
             <button onClick={onCancel} className="px-4 py-2 border rounded-xl">Cancelar</button>
-            <button onClick={handleDone} className="px-4 py-2 rounded-xl bg-black text-white">Usar recorte 800x600</button>
+            <button onClick={handleDone} className="px-4 py-2 rounded-xl bg-black text-white">Usar recorte</button>
           </div>
         </div>
       </div>
