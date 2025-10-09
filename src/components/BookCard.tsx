@@ -1,38 +1,24 @@
-"use client"
-import Image from "next/image"
-import Link from "next/link"
-import { Book } from "@/types"
+import Image from "next/image";
+import Link from "next/link";
+import { API } from "@/lib/api";
+import type { BookSummary } from "@/lib/api";
 
-export default function BookCard({ book }: { book: Book }) {
+export default function BookCard({ book }: { book: BookSummary }) {
   return (
-    <div className="group rounded-2xl overflow-hidden border bg-white hover:shadow-md transition-all">
-      <div className="relative w-full aspect-[3/4] bg-gray-100">
-        <Image
-          src={book.coverUrl ?? "/placeholder.jpg"}
-          alt={book.title}
-          fill
-          className="object-cover"
-          unoptimized
-        />
-      </div>
-      <div className="p-3">
-        <h3 className="text-sm font-medium line-clamp-2">{book.title}</h3>
+    <div className="rounded-2xl border bg-white p-3">
+      <Link href={`/reader/${book.slug}`} className="block">
+        <div className="relative w-full aspect-[3/4] overflow-hidden rounded-xl bg-gray-100">
+          <Image
+            src={`${API}${book.coverUrl}`} // capa do backend
+            alt={book.title}
+            fill
+            className="object-cover"
+            sizes="(max-width:768px) 50vw, 25vw"
+          />
+        </div>
+        <h3 className="mt-2 text-sm font-medium line-clamp-2">{book.title}</h3>
         <p className="text-xs text-gray-600 line-clamp-1">{book.authors.join(", ")}</p>
-        <div className="flex flex-wrap gap-1 my-2">
-          {book.tags.slice(0, 3).map(t => (
-            <span key={t} className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 border">{t}</span>
-          ))}
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-xs text-gray-500">{book.year ?? ""} {book.language ? `• ${book.language}` : ""}</span>
-          <Link
-            href={`/reader/${book.id}`}
-            className="text-sm font-semibold hover:underline"
-          >
-            Ler agora
-          </Link>
-        </div>
-      </div>
+      </Link>
     </div>
-  )
+  );
 }

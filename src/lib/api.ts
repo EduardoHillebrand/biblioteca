@@ -18,3 +18,29 @@ export async function apiFetch(path: string, opts: RequestInit = {}) {
   }
   return res;
 }
+
+export async function fetchBooks(params: {
+  q?: string;
+  language?: string;
+  tag?: string;
+  yearFrom?: number;
+  yearTo?: number;
+}) {
+  const usp = new URLSearchParams();
+  Object.entries(params).forEach(([k, v]) => {
+    if (v !== undefined && v !== null && String(v) !== "") usp.append(k, String(v));
+  });
+  const res = await fetch(`${API}/books?${usp.toString()}`, { credentials: "include" });
+  if (!res.ok) throw new Error("Falha ao carregar livros");
+  return (await res.json()) as { items: BookSummary[] };
+}
+
+export type BookSummary = {
+  slug: string;
+  title: string;
+  authors: string[];
+  year?: number;
+  language?: string;
+  tags: string[];
+  coverUrl: string; // vem relativo do backend
+};

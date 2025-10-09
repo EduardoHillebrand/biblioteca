@@ -1,52 +1,23 @@
-"use client"
-import { useState, useMemo } from "react"
-import { BOOKS } from "@/lib/mock"
-import { Book } from "@/types"
+"use client";
+import { useState } from "react";
 
-export default function SearchBar({ onResults }: { onResults: (items: Book[]) => void }) {
-  const [q, setQ] = useState("")
+export default function SearchBar({ onSearch }: { onSearch: (q: string) => void }) {
+  const [text, setText] = useState("");
 
-  const runSearch = (value: string) => {
-    const term = value.trim().toLowerCase()
-    if (!term) {
-      onResults(BOOKS)
-      return
-    }
-    const parts = term.split(/\s+/)
-    const results = BOOKS.filter(b => {
-      const hay = [
-        b.title,
-        b.authors.join(" "),
-        b.tags.join(" "),
-        b.description ?? "",
-        String(b.year ?? ""),
-        b.language ?? ""
-      ].join(" ").toLowerCase()
-      // todos os termos têm que aparecer
-      return parts.every(p => hay.includes(p))
-    })
-    onResults(results)
-  }
-
-  const onChange = (v: string) => {
-    setQ(v)
-    runSearch(v)
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    onSearch(text.trim());
   }
 
   return (
-    <div className="w-full flex items-center gap-2">
+    <form onSubmit={submit} className="flex gap-2">
       <input
-        value={q}
-        onChange={e => onChange(e.target.value)}
-        placeholder="Busque por título, autor, assunto, tag..."
-        className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none focus:ring-4 focus:ring-gray-200"
+        className="w-full border rounded-xl px-3 py-2"
+        placeholder="Busque por título, autor, tag…"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
       />
-      <button
-        onClick={() => runSearch(q)}
-        className="rounded-xl border px-4 py-3 text-sm font-medium hover:bg-gray-50"
-      >
-        Buscar
-      </button>
-    </div>
-  )
+      <button className="px-4 py-2 rounded-xl bg-black text-white">Buscar</button>
+    </form>
+  );
 }
