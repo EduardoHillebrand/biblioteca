@@ -9,12 +9,20 @@ export type FiltersState = {
   tag?: string
 }
 
+export type FilterItem = {
+  title: string
+  authors: string[]
+  year?: number
+  language?: string
+  tags: string[]
+}
+
 export default function Filters({
   items,
   value,
   onChange
 }: {
-  items: Book[]
+  items: FilterItem[]
   value: FiltersState
   onChange: (f: FiltersState) => void
 }) {
