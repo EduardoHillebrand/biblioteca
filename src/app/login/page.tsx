@@ -5,10 +5,18 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { apiFetch } from "@/lib/api";
 
+// se o Next ainda insistir em pré-renderizar /login durante o build,
+// mantenha essa linha. Se não precisar, pode remover.
+// (funciona em Client Component também)
+export const dynamic = "force-dynamic";
+
 export default function LoginPage() {
   const router = useRouter();
   const search = useSearchParams();
-  const returnTo = search.get("returnTo") || "/";
+  const rawReturnTo = search.get("returnTo") || "/";
+
+  // segurança: só permite paths internos
+  const returnTo = rawReturnTo.startsWith("/") ? rawReturnTo : "/";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,10 +32,13 @@ export default function LoginPage() {
       await apiFetch("/auth/login", {
         method: "POST",
         body: JSON.stringify({ email, password }),
+        // garante envio do cookie httpOnly
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
       });
-      router.push(returnTo);
+      router.replace(returnTo); // replace para não voltar à tela de login no back
     } catch (err: any) {
-      setError(err.message || "Erro ao entrar");
+      setError(err?.message || "Erro ao entrar");
     } finally {
       setLoading(false);
     }
