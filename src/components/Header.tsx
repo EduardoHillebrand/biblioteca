@@ -38,8 +38,8 @@ export default function Header() {
           {me && (
             <>
               {me.role === "admin" && (
-                <Link href="/admin/books/new" className="hover:underline">
-                  Cadastrar livro
+                <Link href="/admin/books" className="hover:underline">
+                  Gerenciar livros
                 </Link>
               )}
               <button onClick={logout} className="hover:underline">
