@@ -7,6 +7,7 @@ import CoverCropper from "@/components/admin/CoverCropper"
 import { fetchMe } from "@/lib/me";
 import { useEffect,useMemo, useState } from "react"
 import { useRouter } from "next/navigation";
+import { API } from "@/lib/api";
 
 const schema = z.object({
   title: z.string().min(2),
@@ -59,45 +60,60 @@ export default function AdminNewBookPage() {
   }
 
   const onSubmit = async (data: FormValues) => {
-    if (!pdf) {
-      alert("Selecione um PDF")
-      return
-    }
-    if (!coverCropped) {
-      alert("Selecione e recorte a capa para 600x800")
-      return
-    }
-
-    // monta payload
-    const payload = {
-      title: data.title,
-      authors: data.authors.split(",").map(s => s.trim()).filter(Boolean),
-      year: data.year ? Number(data.year) : undefined,
-      language: data.language || undefined,
-      description: data.description || undefined,
-      tags
-    }
-
-    const fd = new FormData()
-    fd.append("meta", new Blob([JSON.stringify(payload)], { type: "application/json" }))
-    fd.append("pdf", pdf, pdf.name)
-    fd.append("cover", coverCropped, "cover-600x800.jpg")
-
-    // Exemplo de chamada. Troque a URL quando a API estiver pronta
-    // Aqui apenas mostramos no console para testar o front
-    console.log("FormData pronto", payload, pdf, coverCropped)
-
-    // Descomente quando tiver endpoint
-    // const res = await fetch("/api/admin/books", { method: "POST", body: fd })
-    // if (!res.ok) { alert("Falha ao enviar"); return }
-
-    alert("Form pronto. Veja o console para os dados. Quando sua API estiver pronta, é só enviar.")
-    reset()
-    setTags([])
-    setPdf(null)
-    setCoverRaw(null)
-    setCoverCropped(null)
+  if (!pdf) {
+    alert("Selecione um PDF");
+    return;
   }
+  if (!coverCropped) {
+    alert("Selecione e recorte a capa para 600x800");
+    return;
+  }
+
+  const payload = {
+    title: data.title,
+    authors: data.authors.split(",").map(s => s.trim()).filter(Boolean),
+    year: data.year ? Number(data.year) : undefined,
+    language: data.language || undefined,
+    description: data.description || undefined,
+    tags,
+  };
+
+  const fd = new FormData();
+    fd.append("meta", new Blob([JSON.stringify(payload)], { type: "application/json" }));
+    fd.append("pdf", pdf, pdf.name);
+    fd.append("cover", coverCropped, "cover-600x800.jpg");
+
+    // se você usa cookie httpOnly, só precisa de credentials: "include"
+    // se também guarda o token no localStorage, ele será usado como Bearer
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+    try {
+      const res = await fetch(`${API}/admin/books`, {
+        method: "POST",
+        body: fd,
+        credentials: "include",
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error || "Falha ao enviar");
+      }
+
+      const dataResp: { id: string; slug: string } = await res.json();
+      alert("Livro cadastrado com sucesso");
+      // leva para o leitor ou para a home como preferir
+      router.push(`/reader/${dataResp.slug}`);
+
+      reset();
+      setTags([]);
+      setPdf(null);
+      setCoverRaw(null);
+      setCoverCropped(null);
+    } catch (e: any) {
+      alert(e.message || "Erro ao cadastrar");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
