@@ -11,7 +11,7 @@ export default function Header() {
   useEffect(() => {
     fetch(`${API}/auth/me`, { credentials: "include" })
       .then(r => r.json())
-      .then(d => {setMe(d?.user ?? null); console.log("ddd",d); } )
+      .then(d => setMe(d?.user ?? null))
       .catch(() => {});
   }, []);
 

@@ -8,6 +8,7 @@ import { fetchMe } from "@/lib/me";
 import { useEffect,useMemo, useState } from "react"
 import { useRouter } from "next/navigation";
 import { API } from "@/lib/api";
+import Header from "@/components/Header";
 
 const schema = z.object({
   title: z.string().min(2),
@@ -117,6 +118,7 @@ export default function AdminNewBookPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Header />
       <main className="max-w-3xl mx-auto px-4 py-8">
         <h1 className="text-2xl font-semibold mb-6">Cadastrar livro</h1>
 

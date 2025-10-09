@@ -43,7 +43,7 @@ export default function AdminBooksPage() {
   async function load() {
     setLoading(true);
     try {
-      const res = await fetch(`${API}/books`, { credentials: "include" });
+      const res = await fetch(`${API}/books?sortBy=createdAt&order=desc`, { credentials: "include" });
       const data = await res.json();
       setItems(data.items || []);
     } catch {
