@@ -4,7 +4,9 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import TagsInput from "@/components/admin/TagsInput"
 import CoverCropper from "@/components/admin/CoverCropper"
-import { useMemo, useState } from "react"
+import { fetchMe } from "@/lib/me";
+import { useEffect,useMemo, useState } from "react"
+import { useRouter } from "next/navigation";
 
 const schema = z.object({
   title: z.string().min(2),
@@ -17,6 +19,8 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>
 
 export default function AdminNewBookPage() {
+  const router = useRouter();
+  const [loadingAuth, setLoadingAuth] = useState(true);
   const { register, handleSubmit, formState, reset, watch } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { language: "pt-BR" }
@@ -31,6 +35,22 @@ export default function AdminNewBookPage() {
 
   const pdfName = useMemo(() => pdf?.name ?? "Nenhum arquivo", [pdf])
   const coverPreview = useMemo(() => coverCropped ? URL.createObjectURL(coverCropped) : coverRaw ? URL.createObjectURL(coverRaw) : null, [coverCropped, coverRaw])
+
+  useEffect(() => {
+    fetchMe()
+      .then(({ user }) => {
+        if (!user || user.role !== "admin") {
+          router.replace(`/login?returnTo=/admin/books/new`);
+        } else {
+          setLoadingAuth(false);
+        }
+      })
+      .catch(() => router.replace(`/login?returnTo=/admin/books/new`));
+  }, [router]);
+
+  if (loadingAuth) {
+    return <div className="p-6 text-sm">Carregando...</div>;
+  }
 
   const onSelectCover = (f: File | undefined) => {
     if (!f) return
