@@ -27,7 +27,7 @@ export default function Filters({
   onChange: (f: FiltersState) => void
 }) {
   const languages = useMemo(() => Array.from(new Set(items.map(i => i.language).filter(Boolean))) as string[], [items])
-  const tags = useMemo(() => Array.from(new Set(items.flatMap(i => i.tags))), [items])
+  const tags = useMemo(() => Array.from(new Set(items.flatMap(i => i.tags))).filter(Boolean) as string[], [items])
   const years = useMemo(() => items.map(i => i.year).filter(Boolean) as number[], [items])
   const minYear = years.length ? Math.min(...years) : undefined
   const maxYear = years.length ? Math.max(...years) : undefined
@@ -42,7 +42,7 @@ export default function Filters({
           className="w-full mt-1 border rounded-lg px-3 py-2 text-sm"
         >
           <option value="">Todos</option>
-          {languages.map(l => <option key={l} value={l}>{l}</option>)}
+          {languages.map((l, idx) => <option key={`${l ?? "lang"}-${idx}`} value={l}>{l}</option>)}
         </select>
       </div>
 
@@ -54,7 +54,7 @@ export default function Filters({
           className="w-full mt-1 border rounded-lg px-3 py-2 text-sm"
         >
           <option value="">Todas</option>
-          {tags.map(t => <option key={t} value={t}>{t}</option>)}
+          {tags.map((t, idx) => <option key={`${t ?? "tag"}-${idx}`} value={t}>{t}</option>)}
         </select>
       </div>
 

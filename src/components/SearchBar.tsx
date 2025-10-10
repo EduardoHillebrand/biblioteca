@@ -40,10 +40,6 @@ export default function SearchBar({
         value={text}
         onChange={(e) => setText(e.target.value)}
       />
-      {/* botão é opcional. pode remover se quiser só “digitou, buscou” */}
-      <button type="submit" className="px-4 py-2 rounded-xl bg-black text-white">
-        Buscar
-      </button>
     </form>
   );
 }

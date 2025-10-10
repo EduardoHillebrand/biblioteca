@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { API } from "@/lib/api";
 import { SITE } from "@/config/site";
 
@@ -8,6 +9,7 @@ type UserMe = { name: string; role: "admin" | "user" } | null;
 
 export default function Header() {
   const [me, setMe] = useState<UserMe>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     fetch(`${API}/auth/me`, { credentials: "include" })
@@ -30,14 +32,16 @@ export default function Header() {
         <Link href="/" className="text-xl font-semibold tracking-tight">{SITE.title}</Link>
 
         <nav className="hidden sm:flex gap-4 text-sm items-center">
-          <Link href="/" className="hover:underline">Início</Link>
+          {pathname !== "/" && <Link href="/" className="hover:underline">Início</Link>}
 
-          {!me && (
-            <Link href="/login" className="hover:underline">Login</Link>
-          )}
+
 
           {me && (
             <>
+              {pathname !== "/favorites" && <Link href="/favorites" className="hover:underline">Favoritos</Link>}
+
+
+
               {me.role === "admin" && (
                 <Link href="/admin" className="hover:underline">
                   Gerenciar
@@ -47,6 +51,9 @@ export default function Header() {
                 Sair
               </button>
             </>
+          )}
+          {!me && (
+            <Link href="/login" className="hover:underline">Login</Link>
           )}
         </nav>
       </div>
