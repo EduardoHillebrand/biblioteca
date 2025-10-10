@@ -6,4 +6,3 @@ dist
 Dockerfile
 README.md
 *.log
-.env*
