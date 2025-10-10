@@ -1,4 +1,4 @@
-export const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+export const API = process.env.NEXT_PUBLIC_API_URL!;
 
 export async function apiFetch(path: string, opts: RequestInit = {}) {
   const isForm = typeof window !== "undefined" && opts.body instanceof FormData;
