@@ -84,7 +84,7 @@ export default function LoginClient() {
         </button>
 
         <p className="text-xs text-gray-600">
-          Não tem conta? Fale com o administrador para criar um acesso.
+          Não tem conta? <Link href="/register" className="underline">Cadastrar</Link>
         </p>
       </form>
 

@@ -13,13 +13,13 @@ export default function Header() {
     fetch(`${API}/auth/me`, { credentials: "include" })
       .then(r => r.json())
       .then(d => setMe(d?.user ?? null))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   async function logout() {
     try {
       await fetch(`${API}/auth/logout`, { method: "POST", credentials: "include" });
-    } catch {}
+    } catch { }
     setMe(null);
     window.location.href = "/"; // volta para a home
   }
@@ -39,8 +39,8 @@ export default function Header() {
           {me && (
             <>
               {me.role === "admin" && (
-                <Link href="/admin/books" className="hover:underline">
-                  Gerenciar livros
+                <Link href="/admin" className="hover:underline">
+                  Gerenciar
                 </Link>
               )}
               <button onClick={logout} className="hover:underline">

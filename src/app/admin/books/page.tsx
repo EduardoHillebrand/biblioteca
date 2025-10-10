@@ -108,6 +108,7 @@ export default function AdminBooksPage() {
                     <td className="px-4 py-3">
                       <div className="flex gap-2">
                         <Link href={`/reader/${b.slug}`} className="underline">Abrir</Link>
+                        <Link href={`/admin/books/${b.slug}/edit`} className="underline">Editar</Link>
                         <button onClick={() => onDelete(b.slug)} className="text-red-600 hover:underline">
                           Excluir
                         </button>

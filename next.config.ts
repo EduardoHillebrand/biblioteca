@@ -4,7 +4,8 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "placehold.co" },
-      { protocol: "https", hostname: "api.bibliotecaespirita.ong.br" }
+      { protocol: "https", hostname: "api.bibliotecaespirita.ong.br" },
+      { protocol: "http", hostname: "localhost" }
     ]
   },
   eslint: { ignoreDuringBuilds: true },
