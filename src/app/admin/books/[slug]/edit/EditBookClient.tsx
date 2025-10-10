@@ -139,7 +139,7 @@ export default function EditBookClient({ slug }: { slug: string }) {
 
             <div>
                 <label className="text-sm">Slug</label>
-                <input value={slugValue} onChange={e => setSlugValue(e.target.value)} className="mt-1 w-full border rounded-xl px-3 py-2" />
+                <input value={slugValue} onChange={e => setSlugValue(e.target.value)} className="mt-1 w-full border rounded-xl px-3 py-2 disabled" disabled />
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
