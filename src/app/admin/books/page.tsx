@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Header from "@/components/Header";
 import { useRouter } from "next/navigation";
 import { fetchMe } from "@/lib/me";
@@ -22,6 +22,24 @@ export default function AdminBooksPage() {
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [items, setItems] = useState<BookRow[]>([]);
   const [loading, setLoading] = useState(false);
+  const dragIndex = useRef<number | null>(null);
+
+  // send new order to backend: slugs array in desired top->bottom order
+  async function persistOrder(newItems: BookRow[]) {
+    try {
+      const slugs = newItems.map(i => i.slug);
+      const res = await fetch(`${API}/admin/books/reorder`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slugs }),
+      });
+      if (!res.ok) throw new Error("Falha ao persistir ordem");
+    } catch (e: any) {
+      alert(e?.message || "Erro ao salvar ordem");
+      await load(); // reload from server
+    }
+  }
 
   useEffect(() => {
     fetchMe()
@@ -43,7 +61,7 @@ export default function AdminBooksPage() {
   async function load() {
     setLoading(true);
     try {
-      const res = await fetch(`${API}/books?sortBy=createdAt&order=desc`, { credentials: "include" });
+      const res = await fetch(`${API}/books?sortBy=posicao&order=desc`, { credentials: "include" });
       const data = await res.json();
       setItems(data.items || []);
     } catch {
@@ -100,8 +118,31 @@ export default function AdminBooksPage() {
                 </tr>
               </thead>
               <tbody>
-                {items.map(b => (
-                  <tr key={b.slug} className="border-t">
+                {items.map((b, idx) => (
+                  <tr
+                    key={b.slug}
+                    className="border-t"
+                    draggable
+                    onDragStart={(e) => {
+                      dragIndex.current = idx;
+                      e.dataTransfer?.setData("text/plain", String(idx));
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                    }}
+                    onDrop={async (e) => {
+                      e.preventDefault();
+                      const from = dragIndex.current ?? Number(e.dataTransfer?.getData("text/plain"));
+                      const to = idx;
+                      if (from === to) return;
+                      const copy = [...items];
+                      const [moved] = copy.splice(from, 1);
+                      copy.splice(to, 0, moved);
+                      setItems(copy);
+                      dragIndex.current = null;
+                      await persistOrder(copy);
+                    }}
+                  >
                     <td className="px-4 py-3">{b.title}</td>
                     <td className="px-4 py-3">{b.authors.join(", ")}</td>
                     <td className="px-4 py-3">{b.slug}</td>
