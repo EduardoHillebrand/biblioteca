@@ -23,6 +23,7 @@ export default function AdminBooksPage() {
   const [items, setItems] = useState<BookRow[]>([]);
   const [loading, setLoading] = useState(false);
   const dragIndex = useRef<number | null>(null);
+  const [draggingIdx, setDraggingIdx] = useState<number | null>(null);
 
   // send new order to backend: slugs array in desired top->bottom order
   async function persistOrder(newItems: BookRow[]) {
@@ -125,7 +126,12 @@ export default function AdminBooksPage() {
                     draggable
                     onDragStart={(e) => {
                       dragIndex.current = idx;
+                      setDraggingIdx(idx);
                       e.dataTransfer?.setData("text/plain", String(idx));
+                    }}
+                    onDragEnd={() => {
+                      dragIndex.current = null;
+                      setDraggingIdx(null);
                     }}
                     onDragOver={(e) => {
                       e.preventDefault();
@@ -140,10 +146,11 @@ export default function AdminBooksPage() {
                       copy.splice(to, 0, moved);
                       setItems(copy);
                       dragIndex.current = null;
+                      setDraggingIdx(null);
                       await persistOrder(copy);
                     }}
                   >
-                    <td className="px-4 py-3">{b.title}</td>
+                    <td className={`px-4 py-3 cursor-grab ${draggingIdx === idx ? 'cursor-grabbing' : ''}`}>{b.title}</td>
                     <td className="px-4 py-3">{b.authors.join(", ")}</td>
                     <td className="px-4 py-3">{b.slug}</td>
                     <td className="px-4 py-3">

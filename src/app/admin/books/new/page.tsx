@@ -2,13 +2,12 @@
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import TagsInput from "@/components/admin/TagsInput"
+import { useEffect, useMemo, useState } from "react"
+import { useRouter } from "next/navigation"
+import { API } from "@/lib/api"
+import Header from "@/components/Header"
 import CoverCropper from "@/components/admin/CoverCropper"
-import { fetchMe } from "@/lib/me";
-import { useEffect,useMemo, useState } from "react"
-import { useRouter } from "next/navigation";
-import { API } from "@/lib/api";
-import Header from "@/components/Header";
+import { fetchMe } from "@/lib/me"
 
 const schema = z.object({
   title: z.string().min(2),
@@ -29,11 +28,13 @@ export default function AdminNewBookPage() {
   })
   const { errors, isSubmitting } = formState
 
-  const [tags, setTags] = useState<string[]>([])
+  const [tags, setTags] = useState<string>("")
+  const [tagsError, setTagsError] = useState<string | null>(null)
   const [pdf, setPdf] = useState<File | null>(null)
   const [coverRaw, setCoverRaw] = useState<File | null>(null)
   const [coverCropped, setCoverCropped] = useState<Blob | null>(null)
   const [showCropper, setShowCropper] = useState(false)
+  const [createMore, setCreateMore] = useState(false);
 
   const pdfName = useMemo(() => pdf?.name ?? "Nenhum arquivo", [pdf])
   const coverPreview = useMemo(() => coverCropped ? URL.createObjectURL(coverCropped) : coverRaw ? URL.createObjectURL(coverRaw) : null, [coverCropped, coverRaw])
@@ -50,6 +51,25 @@ export default function AdminNewBookPage() {
       .catch(() => router.replace(`/login?returnTo=/admin/books/new`));
   }, [router]);
 
+  // load persisted preference for "Cadastrar mais livros"
+  useEffect(() => {
+    try {
+      const v = typeof window !== "undefined" ? localStorage.getItem("admin:newBook:createMore") : null
+      if (v === "true") setCreateMore(true)
+    } catch (e) {
+      // ignore
+    }
+  }, [])
+
+  // persist preference on change
+  useEffect(() => {
+    try {
+      if (typeof window !== "undefined") localStorage.setItem("admin:newBook:createMore", String(createMore))
+    } catch (e) {
+      // ignore
+    }
+  }, [createMore])
+
   if (loadingAuth) {
     return <div className="p-6 text-sm">Carregando...</div>;
   }
@@ -61,25 +81,38 @@ export default function AdminNewBookPage() {
   }
 
   const onSubmit = async (data: FormValues) => {
-  if (!pdf) {
-    alert("Selecione um PDF");
-    return;
-  }
-  if (!coverCropped) {
-    alert("Selecione e recorte a capa para 600x800");
-    return;
-  }
+    if (!pdf) {
+      alert("Selecione um PDF");
+      return;
+    }
+    if (!coverCropped) {
+      alert("Selecione e recorte a capa para 600x800");
+      return;
+    }
 
-  const payload = {
-    title: data.title,
-    authors: data.authors.split(",").map(s => s.trim()).filter(Boolean),
-    year: data.year ? Number(data.year) : undefined,
-    language: data.language || undefined,
-    description: data.description || undefined,
-    tags,
-  };
+    // simple tags validation (input is comma-separated string)
+    const tagItems = (tags || "").split(",").map(t => t.trim()).filter(Boolean)
+    if (!tagItems.length) {
+      setTagsError("Informe ao menos uma tag")
+      return
+    }
+    const tooLong = tagItems.find(t => t.length > 30)
+    if (tooLong) {
+      setTagsError(`A tag "${tooLong}" excede 30 caracteres`)
+      return
+    }
+    setTagsError(null)
 
-  const fd = new FormData();
+    const payload = {
+      title: data.title,
+      authors: data.authors.split(",").map(s => s.trim()).filter(Boolean),
+      year: data.year ? Number(data.year) : undefined,
+      language: data.language || undefined,
+      description: data.description || undefined,
+      tags: tagItems,
+    };
+
+    const fd = new FormData();
     fd.append("meta", new Blob([JSON.stringify(payload)], { type: "application/json" }));
     fd.append("pdf", pdf, pdf.name);
     fd.append("cover", coverCropped, "cover-600x800.jpg");
@@ -103,14 +136,22 @@ export default function AdminNewBookPage() {
 
       const dataResp: { id: string; slug: string } = await res.json();
       alert("Livro cadastrado com sucesso");
-      // leva para o leitor ou para a home como preferir
-      router.push(`/reader/${dataResp.slug}`);
-
-      reset();
-      setTags([]);
-      setPdf(null);
-      setCoverRaw(null);
-      setCoverCropped(null);
+      if (createMore) {
+        // limpa o form para cadastrar outro
+        reset();
+        setTags("");
+        setPdf(null);
+        setCoverRaw(null);
+        setCoverCropped(null);
+        // foco no título
+        setTimeout(() => {
+          const el = document.querySelector('input[name="title"]') as HTMLInputElement | null;
+          el?.focus();
+        }, 50);
+      } else {
+        // leva para o leitor ou para a home como preferir
+        router.push(`/reader/${dataResp.slug}`);
+      }
     } catch (e: any) {
       alert(e.message || "Erro ao cadastrar");
     }
@@ -147,7 +188,8 @@ export default function AdminNewBookPage() {
             </div>
             <div>
               <label className="text-sm">Tags</label>
-              <TagsInput value={tags} onChange={setTags} placeholder="Digite e Enter para adicionar" />
+              <input value={tags} onChange={e => setTags(e.target.value)} className="mt-1 w-full border rounded-xl px-3 py-2" placeholder="tags separadas por vírgula" />
+              {tagsError && <p className="text-xs text-red-600 mt-1">{tagsError}</p>}
             </div>
           </div>
 
@@ -176,8 +218,12 @@ export default function AdminNewBookPage() {
             </div>
           </div>
 
-          <div className="pt-2">
+          <div className="pt-2 flex items-center gap-4">
             <button disabled={isSubmitting} className="px-5 py-2 rounded-xl bg-black text-white disabled:opacity-60">Salvar</button>
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={createMore} onChange={e => setCreateMore(e.target.checked)} />
+              <span>Cadastrar mais livros</span>
+            </label>
           </div>
         </form>
       </main>

@@ -1,5 +1,5 @@
 "use client"
-import { useState, useRef, KeyboardEvent } from "react"
+import { useState, useRef, KeyboardEvent, ClipboardEvent } from "react"
 
 export default function TagsInput({ value, onChange, placeholder = "Digite e pressione Enter" }: {
   value: string[]
@@ -18,12 +18,30 @@ export default function TagsInput({ value, onChange, placeholder = "Digite e pre
   }
 
   const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+    // add on Enter, comma or Tab so users can type tags quickly
+    if (e.key === "Enter" || e.key === "," || e.key === "Tab") {
       e.preventDefault()
-      add(input)
+      // remove trailing commas if any
+      const sanitized = input.replace(/,+$/g, "")
+      add(sanitized)
     }
     if (e.key === "Backspace" && !input && value.length) {
       onChange(value.slice(0, -1))
+    }
+  }
+
+  const onPaste = (e: ClipboardEvent<HTMLInputElement>) => {
+    const text = e.clipboardData.getData('text') || ''
+    if (!text) return
+    // if paste contains separators, split into tags
+    if (/[,;\n]/.test(text)) {
+      e.preventDefault()
+      const parts = text.split(/[,;\n]+/).map(p => p.trim()).filter(Boolean)
+      if (parts.length) {
+        // dedupe w.r.t existing
+        const next = parts.filter(p => !value.includes(p))
+        if (next.length) onChange([...value, ...next])
+      }
     }
   }
 
