@@ -89,7 +89,7 @@ export default function AdminUsersPage() {
   const users = items.filter(i => i.role === "user");
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen site-bg">
       <Header />
       <main className="max-w-6xl mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-4">

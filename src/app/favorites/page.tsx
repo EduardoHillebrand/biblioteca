@@ -8,6 +8,8 @@ import Filters, { FiltersState } from "@/components/Filters";
 import { useRouter } from "next/navigation";
 import { fetchMe } from "@/lib/me";
 import { apiFetch } from "@/lib/api";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSync, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import type { BookSummary } from "@/lib/api";
 
 export default function FavoritesPage() {
@@ -61,7 +63,7 @@ export default function FavoritesPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen site-bg">
       <Header />
       <main className="max-w-6xl mx-auto px-4 py-6">
         <section className="flex flex-col gap-4">
@@ -74,7 +76,13 @@ export default function FavoritesPage() {
           <div>
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm text-gray-600">{filtered.length} resultado(s)</p>
-              <button onClick={() => load()} className="text-sm text-blue-600 hover:underline">Atualizar</button>
+              <button
+                onClick={() => load()}
+                aria-label="Atualizar"
+                className="p-2 rounded-md hover:bg-gray-25"
+              >
+                <FontAwesomeIcon icon={loading ? faSpinner : faSync} spin={loading} />
+              </button>
             </div>
 
             {loading ? (

@@ -35,7 +35,7 @@ export default async function ReaderPage({
 
   if (!book) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen site-bg">
         <Header />
         <main className="max-w-4xl mx-auto px-4 py-10">
           <p className="text-sm">Livro não encontrado.</p>
@@ -46,7 +46,7 @@ export default async function ReaderPage({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen site-bg">
       <Header />
       <main className="max-w-6xl mx-auto px-4 py-6">
         <div className="mb-3 text-sm text-gray-600">

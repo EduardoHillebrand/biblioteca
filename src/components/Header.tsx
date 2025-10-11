@@ -29,7 +29,7 @@ export default function Header() {
   }
 
   return (
-    <header className="w-full sticky top-0 z-40 bg-white/75 backdrop-blur border-b border-gray-200">
+    <header className="w-full sticky top-0 z-40 bg-white/75 backdrop-blur border-b border-blue-default">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
         <Link href="/" className="text-xl font-semibold tracking-tight">{SITE.title}</Link>
 
@@ -54,36 +54,36 @@ export default function Header() {
 
         {/* Mobile icon nav using FontAwesome */}
         <nav className="flex sm:hidden gap-3 items-center">
-            {pathname !== "/" ? (
-              <Link href="/" aria-label="Início" className="p-2 rounded-md hover:bg-gray-100">
-                <FontAwesomeIcon icon={faHome} className="w-5 h-5" />
-              </Link>
-            ) : (
-              <div className="w-8" />
-            )}
+          {pathname !== "/" ? (
+            <Link href="/" aria-label="Início" className="p-2 rounded-md hover:bg-gray-100">
+              <FontAwesomeIcon icon={faHome} className="w-5 h-5" />
+            </Link>
+          ) : (
+            <div className="w-8" />
+          )}
 
-            {me && pathname !== "/favorites" && (
-              <Link href="/favorites" aria-label="Favoritos" className="p-2 rounded-md hover:bg-gray-100">
-                <FontAwesomeIcon icon={faHeart} className="w-5 h-5" />
-              </Link>
-            )}
+          {me && pathname !== "/favorites" && (
+            <Link href="/favorites" aria-label="Favoritos" className="p-2 rounded-md hover:bg-gray-100">
+              <FontAwesomeIcon icon={faHeart} className="w-5 h-5" />
+            </Link>
+          )}
 
-            {me && me.role === "admin" && (
-              <Link href="/admin" aria-label="Gerenciar" className="p-2 rounded-md hover:bg-gray-100">
-                <FontAwesomeIcon icon={faCog} className="w-5 h-5" />
-              </Link>
-            )}
+          {me && me.role === "admin" && (
+            <Link href="/admin" aria-label="Gerenciar" className="p-2 rounded-md hover:bg-gray-100">
+              <FontAwesomeIcon icon={faCog} className="w-5 h-5" />
+            </Link>
+          )}
 
-            {me ? (
-              <button onClick={logout} aria-label="Sair" className="p-2 rounded-md hover:bg-gray-100">
-                <FontAwesomeIcon icon={faSignOutAlt} className="w-5 h-5" />
-              </button>
-            ) : (
-              <Link href="/login" aria-label="Login" className="p-2 rounded-md hover:bg-gray-100">
-                <FontAwesomeIcon icon={faSignInAlt} className="w-5 h-5" />
-              </Link>
-            )}
-          </nav>
+          {me ? (
+            <button onClick={logout} aria-label="Sair" className="p-2 rounded-md hover:bg-gray-100">
+              <FontAwesomeIcon icon={faSignOutAlt} className="w-5 h-5" />
+            </button>
+          ) : (
+            <Link href="/login" aria-label="Login" className="p-2 rounded-md hover:bg-gray-100">
+              <FontAwesomeIcon icon={faSignInAlt} className="w-5 h-5" />
+            </Link>
+          )}
+        </nav>
       </div>
     </header>
   );
